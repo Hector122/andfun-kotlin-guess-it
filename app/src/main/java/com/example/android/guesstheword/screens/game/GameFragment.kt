@@ -55,15 +55,22 @@ class GameFragment : Fragment() {
         Log.i("GameFragment", "Called ViewModelProvider()")
         viewModel = ViewModelProvider(this).get(GameViewModel::class.java)
 
+        // init dataBinding
+        binding.viewModel = viewModel
+
+        // Specify the current activity as the lifecycle owner of the binding. This is used so that
+        // the binding can observe LiveData updates
+        // Call binding.setLifecycleOwner to make the data binding lifecycle aware:
+        binding.lifecycleOwner = this
 
         //observables
-        viewModel.score.observe(viewLifecycleOwner, Observer {
-            binding.scoreText.text = it.toString()
-        })
-
-        viewModel.word.observe(viewLifecycleOwner, Observer {
-            binding.wordText.text = it
-        })
+//        viewModel.score.observe(viewLifecycleOwner, Observer {
+//            binding.scoreText.text = it.toString()
+//        })
+//
+//        viewModel.word.observe(viewLifecycleOwner, Observer {
+//            binding.wordText.text = it
+//        })
 
         viewModel.eventGameFinish.observe(viewLifecycleOwner, Observer {
             hasFinished -> if(hasFinished) {
@@ -72,17 +79,18 @@ class GameFragment : Fragment() {
             }
         })
 
-        viewModel.currentTime.observe(viewLifecycleOwner, Observer {
-                newTime -> binding.timerText.text = DateUtils.formatElapsedTime(newTime)
-        })
+//        viewModel.currentTime.observe(viewLifecycleOwner, Observer {
+//                newTime -> binding.timerText.text = DateUtils.formatElapsedTime(newTime)
+//        })
 
         // action buttons
-        binding.correctButton.setOnClickListener {
-            viewModel.onCorrect()
-        }
-        binding.skipButton.setOnClickListener {
-            viewModel.onSkip()
-        }
+        // now are handling wit the data binding library
+//        binding.correctButton.setOnClickListener {
+//            viewModel.onCorrect()
+//        }
+//        binding.skipButton.setOnClickListener {
+//            viewModel.onSkip()
+//        }
 
 
         // updateScoreText()

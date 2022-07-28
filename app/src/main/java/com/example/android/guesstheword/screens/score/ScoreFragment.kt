@@ -57,14 +57,18 @@ class ScoreFragment : Fragment() {
         // init view model with the factory class
         viewModel = ViewModelProvider(this, viewModelFactory).get(ScoreViewModel::class.java)
 
+        //binding viewModel to xml layout
+        binding.viewModel = viewModel
+        //To make the data binding lifecycle aware
+        //This is used so that the binding can observe LiveData updates
+        binding.lifecycleOwner = this
 
         // Add observer for score
-        viewModel.score.observe(viewLifecycleOwner, Observer { score ->
-            binding.scoreText.text = score.toString()
-        })
+//        viewModel.score.observe(viewLifecycleOwner, Observer { score ->
+//            binding.scoreText.text = score.toString()
+//        })
 
         // Navigates back to title when button is pressed
-        //TODO: change the logic to viewModel
         viewModel.playAgain.observe(viewLifecycleOwner, Observer { hasFinish ->
             if (hasFinish) {
                 findNavController().navigate(ScoreFragmentDirections.actionRestart())

@@ -18,6 +18,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.android.guesstheword.screens.game.GameViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/game_layout"
         android:layout_width="match_parent"
@@ -57,7 +63,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/word_is_text"
             app:layout_constraintVertical_chainStyle="packed"
-            tools:text="&quot;Tuna&quot;" />
+            tools:text="@{@string/quote_format(viewModel.word)}" />
 
         <TextView
             android:id="@+id/timer_text"
@@ -73,7 +79,7 @@
             app:layout_constraintBottom_toTopOf="@+id/score_text"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:text="0:00" />
+            tools:text="@{viewModel.currentTimeString}" />
 
         <TextView
             android:id="@+id/score_text"
@@ -88,7 +94,7 @@
             app:layout_constraintBottom_toTopOf="@+id/guideline"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:text="Score: 2" />
+            tools:text="@{@string/score_format(viewModel.score)}" />
 
         <Button
             android:id="@+id/skip_button"
@@ -102,6 +108,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintHorizontal_chainStyle="spread_inside"
             app:layout_constraintStart_toStartOf="parent"
+            android:onClick="@{() -> viewModel.onSkip()}"
             app:layout_constraintTop_toTopOf="@+id/guideline" />
 
         <androidx.constraintlayout.widget.Guideline
@@ -118,6 +125,7 @@
             android:layout_marginEnd="16dp"
             android:text="@string/got_it"
             android:theme="@style/GoButton"
+            android:onClick="@{()-> viewModel.onCorrect()}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
