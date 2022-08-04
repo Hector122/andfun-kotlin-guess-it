@@ -25,6 +25,14 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import kotlin.time.seconds
 
+//Vibration is controlled by passing in an array representing the number of milliseconds each
+// interval of buzzing and non-buzzing takes. So the array [0, 200, 100, 300] will wait 0 milliseconds,
+// then buzz for 200ms, then wait 100ms, then buzz fo 300ms.
+private val CORRECT_BUZZ_PATTERN = longArrayOf(100, 100, 100, 100, 100, 100)
+private val PANIC_BUZZ_PATTERN = longArrayOf(0, 200)
+private val GAME_OVER_BUZZ_PATTERN = longArrayOf(0, 2000)
+private val NO_BUZZ_PATTERN = longArrayOf(0)
+
 class GameViewModel : ViewModel() {
     companion object {
         // These represent different important times
@@ -35,7 +43,18 @@ class GameViewModel : ViewModel() {
         const val ONE_SECOND = 1000L
 
         // This is the total time of the game
-        const val COUNTDOWN_TIME = 10_000L
+        const val COUNTDOWN_TIME = 20_000L
+
+        // This is the time when the phone will start buzzing each second
+        private const val COUNTDOWN_PANIC_SECONDS = 10L
+    }
+
+    //This enum will represent the different types of buzzing that can occur:
+    enum class BuzzType(val pattern: LongArray) {
+        CORRECT(CORRECT_BUZZ_PATTERN),
+        GAME_OVER(GAME_OVER_BUZZ_PATTERN),
+        COUNTDOWN_PANIC(PANIC_BUZZ_PATTERN),
+        NO_BUZZ(NO_BUZZ_PATTERN)
     }
 
     // The current word
@@ -63,6 +82,11 @@ class GameViewModel : ViewModel() {
         DateUtils.formatElapsedTime(time)
     }
 
+    // Event that triggers the phone to buzz using different patterns, determined by BuzzType
+    private val _eventBuzz = MutableLiveData<BuzzType>()
+    val eventBuzz: LiveData<BuzzType>
+        get() = _eventBuzz
+
     init {
         Log.i("GameViewModel", "GameViewModel created")
         // statement
@@ -78,10 +102,16 @@ class GameViewModel : ViewModel() {
         timer = object : CountDownTimer(COUNTDOWN_TIME, ONE_SECOND) {
             override fun onTick(millisUntilFinished: Long) {
                 _currentTime.value = millisUntilFinished / ONE_SECOND
+
+                if (millisUntilFinished / ONE_SECOND <= COUNTDOWN_PANIC_SECONDS) {
+                    _eventBuzz.value = BuzzType.COUNTDOWN_PANIC
+                }
             }
 
             override fun onFinish() {
                 _eventGameFinish.value = true
+
+                _eventBuzz.value = BuzzType.GAME_OVER
             }
         }.start()
     }
@@ -139,10 +169,16 @@ class GameViewModel : ViewModel() {
     fun onCorrect() {
         _score.value = score.value?.plus(1)
         nextWord()
+
+        _eventBuzz.value = BuzzType.CORRECT
     }
 
     fun onGameFinishCompleted() {
         _eventGameFinish.value = false
+    }
+
+    fun onBuzzComplete() {
+        _eventBuzz.value = BuzzType.NO_BUZZ
     }
 
     override fun onCleared() {
